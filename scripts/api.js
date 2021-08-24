@@ -6,11 +6,11 @@ async function getAllPokemon() {
   return results;
 }
 
-async function getOnePokemonSprite(url) {
-  console.log("Here I will be returning a sprite from my Pokemon");
-  const response = await fetch(url);
-  const {sprites} = await response.json();
-  return sprites["front_default"];
+async function getOnePokemon(url) {
+  const response = await fetch (url);
+  const pokemon = await response.json();
+
+  return pokemon;
 }
 
-export { getAllPokemon, getOnePokemonSprite };
+export { getAllPokemon, getOnePokemon };

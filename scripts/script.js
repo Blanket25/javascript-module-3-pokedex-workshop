@@ -1,29 +1,88 @@
-/*Complete the getOnePokemonSprite function to make sure we return the URL of a sprite for each Pokemon
-Complete the init function to make sure we render an image for each sprite returned from the API */
+import { getAllPokemon, getOnePokemon } from "./api.js";
 
-import { getAllPokemon, getOnePokemonSprite } from "./api.js";
+async function createPokemonImage(url) {
+  const pokemonImage = document.createElement("img");
+  pokemonImage.classList.add("poke-img")
+  const pokemonSprite = await getOnePokemon(url);
+  pokemonImage.src = pokemonSprite.sprites['other']['official-artwork']['front_default'];
+  return pokemonImage;
+}
+
+function createPokemonLink(name, url) {
+  const pokemonLink = document.createElement("a");
+  pokemonLink.classList.add("poke-name")
+  pokemonLink.href = url;
+  pokemonLink.textContent = name;
+  return pokemonLink;
+}
+
+async function createPokemonId(url) {
+  const pokemonId = document.createElement('p');
+  pokemonId.classList.add("poke-id")
+  const pokemonInfo = await getOnePokemon(url);
+  if(pokemonInfo.id < 10) {
+    pokemonId.textContent = `#00${pokemonInfo.id}`
+  } else if(pokemonInfo.id < 100) {
+    pokemonId.textContent = `#0${pokemonInfo.id}`;
+  }
+  
+  return pokemonId;
+}
+
+async function createPokemon(name, url) {
+  const newPokemon = document.createElement("div");
+  newPokemon.classList.add("poke-card")
+  newPokemon.appendChild(await createPokemonId(url))
+  newPokemon.appendChild(await createPokemonImage(url))
+  newPokemon.appendChild(createPokemonLink(name, url))
+  return newPokemon;
+}
+
+function searchPokemon(event) {
+  if (event.code === "Enter") {
+    const term = event.target.value;
+    const url = `https://pokeapi.co/api/v2/pokemon/${term}`;
+    pokemonContainer.style.display = "none";
+    createPokemon(term, url).then(
+      newPokemon => root.appendChild(newPokemon)
+    ) 
+    }else {
+      pokemonContainer.style.display = "flex";
+    //getOnePokemon(term)
+    //  .then(pokemon => console.log(pokemon))
+  }
+}
+
+function createSearchField() {
+  const searchField = document.createElement("input");
+  searchField.classList.add("search-bar")
+  searchField.type = "text";
+  searchField.placeholder = "Search";
+  searchField.addEventListener("keyup", searchPokemon)
+  return searchField;
+}
+
+const root = document.getElementById("root");
+const pokemonContainer = document.createElement('div');
+root.appendChild(createSearchField())
+root.appendChild(pokemonContainer);
 
 async function init() {
+  
+  root.classList.add("grey-background")
+  
+  pokemonContainer.classList.add("card-container")
+  
   const pokemon = await getAllPokemon();
 
-
   pokemon.forEach(async ({ name, url }) => {
-    const newPokemon = document.createElement("div");
-    const pokemonLink = document.createElement("a");
-    pokemonLink.href = url;
-    pokemonLink.textContent = name;
-    newPokemon.appendChild(pokemonLink);
-    root.appendChild(newPokemon);
-
-    const spriteUrl = await getOnePokemonSprite(url);
-    const pokeImg = document.createElement("img");
-    pokeImg.src = spriteUrl;
-    newPokemon.appendChild(pokeImg);
-       
-    console.log(
-      "Here I will be creating an image with the sprite returned by getOnePokemonSprite"
-    );
+    pokemonContainer.appendChild(await createPokemon(name, url))
   });
 }
 
-init()
+init();
+
+
+
+
+   
