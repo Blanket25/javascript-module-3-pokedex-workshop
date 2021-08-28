@@ -30,24 +30,38 @@ async function createPokemonId(url) {
 }
 
 async function createPokemon(name, url) {
-  const newPokemon = document.createElement("div");
-  newPokemon.classList.add("poke-card")
-  newPokemon.appendChild(await createPokemonId(url))
-  newPokemon.appendChild(await createPokemonImage(url))
-  newPokemon.appendChild(createPokemonLink(name, url))
-  return newPokemon;
+  const newPokemonDiv = document.createElement("div");
+  newPokemonDiv.textContent = name;
+  newPokemonDiv.classList.add("poke-card")
+
+  fetch(url)
+  .then(response => response.json())
+  .then(json => {
+    newPokemonDiv.textContent += json.id;
+    const newImg = document.createElement('img');
+    newPokemonDiv.appendChild(newImg)
+    newImg.src = json.sprites.front_default;
+  })
+
+
+
+
+  // newPokemon.appendChild(await createPokemonId(url))
+  // newPokemon.appendChild(await createPokemonImage(url))
+  // newPokemon.appendChild(createPokemonLink(name, url))
+  return newPokemonDiv;
 }
 
 function searchPokemon(event) {
   if (event.code === "Enter") {
     const term = event.target.value;
     const url = `https://pokeapi.co/api/v2/pokemon/${term}`;
-    pokemonContainer.style.display = "none";
+    pokemonContainer.innerHTML = '';
     createPokemon(term, url).then(
       newPokemon => root.appendChild(newPokemon)
     ) 
     }else {
-      pokemonContainer.style.display = "flex";
+      init();
     //getOnePokemon(term)
     //  .then(pokemon => console.log(pokemon))
   }
